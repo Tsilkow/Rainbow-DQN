@@ -50,7 +50,10 @@ class DQN:
         self.optimizer.step()
     
     def update_target(self):
-        """Method for replacing Q-value target network with the newest Q-value network."""
+        """
+        Method for replacing Q-value target network with the newest Q-value 
+        network.
+        """
         self.q_target.load_state_dict(self.q_net.state_dict())
         
     def evaluate(self, samples):
@@ -80,6 +83,10 @@ class DQN:
 
 
 class RainbowDQN(DQN):
+    """
+    Rainbow Deep Q-value Network that combines N-step and Prioritized Buffer 
+    as well as Dueling and Noisy Q-value Network.
+    """
     def __init__(self, args, nstep=3, std=0.2, alpha=0.2, beta=0.2):
         super(RainbowDQN, self).__init__(args)
         self.buffer = RainbowBuffer(args, nstep, alpha, beta)
@@ -93,7 +100,6 @@ class RainbowDQN(DQN):
         self.std = std
         
     def update(self):
-        ################
         states, actions, rewards, next_states, terminals, idx, weights = self.buffer.sample()
         with torch.no_grad():
             _, indices_of_best = self.q_net(next_states).max(1, keepdim=True)
@@ -108,7 +114,6 @@ class RainbowDQN(DQN):
         self.optimizer.step()
         priorities = td_errors.detach().squeeze().cpu().tolist()
         self.buffer.update_priorities(idx, priorities)
-        ################
         
     def anneal(self, step):
         if step < self.args.anneal_steps and step > self.args.init_steps:
