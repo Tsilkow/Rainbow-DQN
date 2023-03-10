@@ -62,7 +62,7 @@ class NStepBuffer(ExperienceBuffer):
     Extension of Experience Buffer that evaluates reward of given experience
     by looking n past steps and discounting rewards accordingly
     """
-    def __init__(self, args, nstep):
+    def __init__(self, args, nstep, **kw):
         super(NStepBuffer, self).__init__(args)
         self.memories = deque(maxlen=nstep)
         self.nstep = nstep 
@@ -104,8 +104,8 @@ class PrioritizedBuffer(ExperienceBuffer):
     Variant of Experience buffer that prioritizes transitions that agent
     estimates the worst.
     """
-    def __init__(self, args, alpha, beta):
-        super(PrioritizedBuffer, self).__init__(args)
+    def __init__(self, args, alpha, beta, **kw):
+        super(PrioritizedBuffer, self).__init__(args, **kw)
         tree_capacity = 1
         while tree_capacity < self.args.buffer_capacity:
             tree_capacity *= 2
@@ -168,17 +168,7 @@ class RainbowBuffer(PrioritizedBuffer, NStepBuffer):
     estimated, while the rewards are calculated by looking at last n steps.
     """
     def __init__(self, args, nstep, alpha, beta):
-        super(RainbowBuffer, self).__init__(args)
-        tree_capacity = 1
-        while tree_capacity < self.args.buffer_capacity:
-            tree_capacity *= 2
-        self.sum_tree = SumSegmentTree(tree_capacity)
-        self.min_tree = MinSegmentTree(tree_capacity)
-        self.priority_cap = 1
-        self.alpha = alpha
-        self.beta = beta   
-        self.memories = deque(maxlen=nstep)
-        self.nstep = nstep
+        super(RainbowBuffer, self).__init__(args, alpha=alpha, beta=beta, nstep=nstep)
         
     def add(self, state, action, reward, next_state, terminal):
         terminal_ = 1 if terminal else 0

@@ -4,6 +4,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import gymnasium as gym
 
 from buffer import *
 from network import *
@@ -61,11 +62,11 @@ class DQN:
             env_test = gym.make(self.args.gym_id)
             eval_reward = 0
             for i in range(samples):
-                state = env_test.reset()
+                state, _ = env_test.reset()
                 episode_reward = 0
                 while True:
                     action = self.get_action(torch.tensor(state).unsqueeze(0).to(self.args.device), False)
-                    next_state, reward, terminal, _ = env_test.step(action)
+                    next_state, reward, terminal, _, _ = env_test.step(action)
                     episode_reward += reward
                     state = next_state
                     if terminal:

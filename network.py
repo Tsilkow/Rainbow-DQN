@@ -64,7 +64,7 @@ class NoisyLinear(nn.Module):
         return x @ weights.T + biases
     
 
-class DuelingQNetwork(QNetwork):
+class DuelingQNetwork(nn.Module):
     """
     Variant of Q-Network that calculates Q-value by adding together value of 
     given state and advantage given action has over other actions.
@@ -85,7 +85,7 @@ class DuelingQNetwork(QNetwork):
         return state_value + advantages - average_advantage
     
 
-class RainbowQNetwork(DuelingQNetwork):
+class RainbowQNetwork(nn.Module):
     """
     Variant of Q-Network based on Dueling Q-Network using Noisy Nets. Q-value is
     calculated by adding value of given state to advantage given action has over 
@@ -98,3 +98,10 @@ class RainbowQNetwork(DuelingQNetwork):
             NoisyLinear(args.hidden_dim, args.hidden_dim, std), nn.ReLU(),)
         self.advantage_head = NoisyLinear(args.hidden_dim, args.action_dim, std)
         self.value_head = NoisyLinear(args.hidden_dim, 1, std)
+    
+    def forward(self, x):
+        headless_output = self.layers(x)
+        state_value = self.value_head(headless_output)
+        advantages = self.advantage_head(headless_output)
+        average_advantage = (advantages.sum(dim=1)/x.shape[1]).unsqueeze(dim=1)
+        return state_value + advantages - average_advantage
