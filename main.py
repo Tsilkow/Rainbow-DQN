@@ -26,11 +26,12 @@ class parse_args:
         self.hidden_dim = 128 # Hidden dimension of Q-value network
         self.learning_rate = 7e-4
         self.discount = 0.99
-        self.total_timesteps = 40000
+        self.truncation_punishment = 1000
+        self.total_timesteps = 100000
         self.target_update_freq = 50 # Update frequency of Q-value target network
         self.evaluate_freq = 1000
         self.evaluate_samples = 5
-        self.anneal_steps = 30000
+        self.anneal_steps = 90000
         self.epsilon_limit = 0.01
         self.cuda = True
         env = gym.make(self.gym_id)
@@ -52,6 +53,8 @@ def set_all_seeds(env, seed):
 def train_agent(args, agent):
     """
     Function for training an agent.
+
+    Returns one-dimensional array containing results from evaluations.
     """
     results = np.zeros((args.total_timesteps//args.evaluate_freq))
     env = gym.make(args.gym_id)
@@ -64,7 +67,8 @@ def train_agent(args, agent):
         if step == args.init_steps:
             start_time = time.time()
         action = agent.get_action(torch.tensor(state).unsqueeze(0).to(args.device))
-        next_state, reward, terminal, _, _ = env.step(action)
+        next_state, reward, terminal, truncated, _ = env.step(action)
+        if truncated: reward -= args.truncation_punishment
         agent.buffer.add(state, action, reward, next_state, terminal)
         agent.anneal(step)
         state = next_state
@@ -78,21 +82,23 @@ def train_agent(args, agent):
                 print(f'\rStep: {step} '
                         f'Evaluation reward: {eval_reward:.2f} '
                         f'Samples per second: {int((step-args.init_steps)/(time.time()-start_time))}',
-                        end='')
-        if terminal:
+                        end='\n')
+        if terminal or truncated:
             state, _ = env.reset()
             episode_reward = 0
     return results
 
 
 def play_using_agent(args, agent):
-    env = gym.make(args.gym_id, render_mode='rgb_array')
+    env = gym.make(args.gym_id, render_mode='human')
     state, _ = env.reset()
     while True:
         action = agent.get_action(torch.tensor(state).unsqueeze(0).to(args.device))
-        next_state, reward, terminal, _, _ = env.step(action)
+        next_state, reward, terminal, truncated, _ = env.step(action)
+        if truncated: reward -= args.truncation_punishment
+        print(f'{action}: {reward: 2.2f} {terminal} {truncated}')
         state = next_state
-        if terminal: break
+        if terminal or truncated: break
 
 
 def play_using_human(args):
@@ -102,9 +108,17 @@ def play_using_human(args):
         'a': 1,
         'd': 3,
     }
-    play.play(env, keys_to_action=key_mappings)
+
+    def callback(obs_t, obs_tp1, action, rew, terminated, truncated, info):
+        return [rew,]
+    
+    plotter = play.PlayPlot(callback, 150, ["reward"])
+    play.play(env, fps=10, keys_to_action=key_mappings, callback=plotter.callback)
 
 
 agent = RainbowDQN(args)
-train_agent(args, agent)
+#result = train_agent(args, agent)[-1]
+#agent.save_qnet(f'agent_{args.total_timesteps}_{result:.2f}')
+agent.load_qnet('agent_100000_-9.22')
 play_using_agent(args, agent)
+#play_using_human(args)

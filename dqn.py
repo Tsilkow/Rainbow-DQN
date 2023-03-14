@@ -19,6 +19,7 @@ class DQN:
         self.args = args 
         self.buffer = ExperienceBuffer(self.args)
         self.epsilon = 1
+        self.truncation_punishment = args.truncation_punishment
         self.q_net = QNetwork(self.args).to(self.args.device)
         self.q_target = QNetwork(self.args).to(self.args.device)
         self.q_target.load_state_dict(self.q_net.state_dict())
@@ -66,10 +67,11 @@ class DQN:
                 episode_reward = 0
                 while True:
                     action = self.get_action(torch.tensor(state).unsqueeze(0).to(self.args.device), False)
-                    next_state, reward, terminal, _, _ = env_test.step(action)
+                    next_state, reward, terminal, truncated, _ = env_test.step(action)
+                    if truncated: reward -= self.truncation_punishment
                     episode_reward += reward
                     state = next_state
-                    if terminal:
+                    if terminal or truncated:
                         eval_reward += episode_reward/samples
                         break
         return eval_reward
@@ -81,6 +83,12 @@ class DQN:
         self.q_target = QNetwork(self.args).to(self.args.device)
         self.q_target.load_state_dict(self.q_net.state_dict())
         self.optimizer = optim.Adam(self.q_net.parameters(), lr=self.args.learning_rate, eps=1e-5)
+
+    def save_qnet(self, filename):
+        torch.save(self.q_net.state_dict(), filename)
+
+    def load_qnet(self, filename):
+        self.q_net.load_state_dict(torch.load(filename))  
 
 
 class RainbowDQN(DQN):
