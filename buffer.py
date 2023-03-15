@@ -123,17 +123,17 @@ class PrioritizedBuffer(ExperienceBuffer):
     def sample(self):
         idx = self.get_idx()
 
-        states = torch.from_numpy(self.states[idx])
-        actions = torch.from_numpy(self.actions[idx])
-        rewards = torch.from_numpy(self.rewards[idx])
-        next_states = torch.from_numpy(self.next_states[idx])
-        terminals = torch.from_numpy(self.terminals[idx])
+        states = torch.from_numpy(self.states[idx]).to(self.args.device)
+        actions = torch.from_numpy(self.actions[idx]).to(self.args.device)
+        rewards = torch.from_numpy(self.rewards[idx]).to(self.args.device)
+        next_states = torch.from_numpy(self.next_states[idx]).to(self.args.device)
+        terminals = torch.from_numpy(self.terminals[idx]).to(self.args.device)
         
         if self.full: max_weight = self.args.buffer_capacity
         else: max_weight = self.idx-1
         max_weight = max(0.00001, self.min_tree.min(0, max_weight)
                          * self.args.buffer_capacity) ** (-self.beta)
-        weights = torch.tensor([self.calculate_weight(i) / max_weight for i in idx])
+        weights = torch.tensor([self.calculate_weight(i) / max_weight for i in idx]).to(self.args.device)
         return states, actions, rewards, next_states, terminals, idx, weights
     
     def update_priorities(self, idx, priorities):
