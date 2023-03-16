@@ -10,6 +10,7 @@ import warnings
 import gymnasium as gym
 import gymnasium.utils.play as play
 import numpy as np
+import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -21,7 +22,7 @@ class Hyperparameters:
     """Simple class for holding the hyperparameters"""
     def __init__(self):
         self.gym_id = 'LunarLander-v2'
-        self.seed = 27182
+        self.seed = 314159
         self.buffer_capacity = 10000 # Experience buffer capacity
         self.init_steps = 10000 # Number of initial steps without learning
         self.batch_size = 128
@@ -34,7 +35,7 @@ class Hyperparameters:
         self.evaluate_freq = 1000
         self.snapshot_freq = 40000
         self.evaluate_samples = 5
-        self.anneal_steps = 190000
+        self.anneal_steps = 200000
         self.epsilon_limit = 0.01
         self.cuda = True
         env = gym.make(self.gym_id)
@@ -97,6 +98,11 @@ def train_agent(args, agent, record: bool=False):
         if terminal or truncated:
             state, _ = env.reset()
             episode_reward = 0
+    if record:
+        np.save(f'plots/agent_{args.seed}.npy', results)
+        plt.plot(results)
+        plt.savefig(f'plots/agent_{args.seed}.png')
+
     return results
 
 
