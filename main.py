@@ -23,19 +23,19 @@ class Hyperparameters:
     def __init__(self):
         self.gym_id = 'LunarLander-v2'
         self.seed = 314159
-        self.buffer_capacity = 10000 # Experience buffer capacity
+        self.buffer_capacity = 20000 # Experience buffer capacity
         self.init_steps = 10000 # Number of initial steps without learning
         self.batch_size = 128
         self.hidden_dim = 128 # Hidden dimension of Q-value network
-        self.learning_rate = 7e-4
+        self.learning_rate = 1e-3
         self.discount = 0.99
         self.truncation_punishment = 0
-        self.total_timesteps = 200000
+        self.total_timesteps = 100000
         self.target_update_freq = 50 # Update frequency of Q-value target network
         self.evaluate_freq = 1000
-        self.snapshot_freq = 40000
+        self.snapshot_freq = 20000
         self.evaluate_samples = 5
-        self.anneal_steps = 200000
+        self.anneal_steps = 90000
         self.epsilon_limit = 0.01
         self.cuda = True
         env = gym.make(self.gym_id)
