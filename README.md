@@ -13,20 +13,29 @@ Notably, this is not a full Rainbow, as Distributional reinforcement learning fr
 ## Results
 Following results were achieved by training on my personal computer without GPU (but I'm hoping to get to train a more ambitious example on a GPU) for 100000 steps.
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/69109124/225891320-660cd91b-00a1-4f5d-9d08-fcdde3e6382f.png" width=50% height=auto>
-  
-  <video src="https://github.com/Tsilkow/Rainbow-DQN/video/agent_314159_20000_episode-0.mp4" />  
+  <img src="https://raw.githubusercontent.com/Tsilkow/Rainbow-DQN/main/plots/agent_314159.png" width=50% height=auto>
+
+  <img src="https://raw.githubusercontent.com/Tsilkow/Rainbow-DQN/main/video/agent_314159_20000.gif" width=50% height=auto>
+  <br>
   Evaluation after 20000 steps of training
+  <br>
 
-  <video src="https://github.com/Tsilkow/Rainbow-DQN/video/agent_314159_40000_episode-0.mp4" />  
+  <img src="https://raw.githubusercontent.com/Tsilkow/Rainbow-DQN/main/video/agent_314159_40000.gif" width=50% height=auto>
+  <br>
   Evaluation after 40000 steps of training
+  <br>
 
-  <video src="https://github.com/Tsilkow/Rainbow-DQN/video/agent_314159_60000_episode-0.mp4" />  
+  <img src="https://raw.githubusercontent.com/Tsilkow/Rainbow-DQN/main/video/agent_314159_60000.gif" width=50% height=auto>
+  <br>
   Evaluation after 60000 steps of training
+  <br>
 
-  <video src="https://github.com/Tsilkow/Rainbow-DQN/video/agent_314159_80000_episode-0.mp4" />  
+  <img src="https://raw.githubusercontent.com/Tsilkow/Rainbow-DQN/main/video/agent_314159_80000.gif" width=50% height=auto>
+  <br>
   Evaluation after 80000 steps of training
+  <br>
 
-  <video src="https://github.com/Tsilkow/Rainbow-DQN/video/agent_314159_100000_episode-0.mp4" />  
+  <img src="https://raw.githubusercontent.com/Tsilkow/Rainbow-DQN/main/video/agent_314159_100000.gif" width=50% height=auto>
+  <br>
   Evaluation after 100000 steps of training
 </p>
