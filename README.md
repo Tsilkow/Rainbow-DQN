@@ -11,3 +11,22 @@ Implementation follows [Rainbow paper (Hessel 2017)](https://arxiv.org/abs/1710.
 Notably, this is not a full Rainbow, as Distributional reinforcement learning from [paper by Bellemere et al. 2017](https://arxiv.org/abs/1707.06887) is not implemented. This was due to computational restrictions. 
 
 ## Results
+Following results were achieved by training on my personal computer without GPU (but I'm hoping to get to train a more ambitious example on a GPU) for 100000 steps.
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/69109124/225891320-660cd91b-00a1-4f5d-9d08-fcdde3e6382f.png" width=50% height=auto>
+  
+  <video src="https://github.com/Tsilkow/Rainbow-DQN/video/agent_314159_20000_episode-0.mp4" />  
+  Evaluation after 20000 steps of training
+
+  <video src="https://github.com/Tsilkow/Rainbow-DQN/video/agent_314159_40000_episode-0.mp4" />  
+  Evaluation after 40000 steps of training
+
+  <video src="https://github.com/Tsilkow/Rainbow-DQN/video/agent_314159_60000_episode-0.mp4" />  
+  Evaluation after 60000 steps of training
+
+  <video src="https://github.com/Tsilkow/Rainbow-DQN/video/agent_314159_80000_episode-0.mp4" />  
+  Evaluation after 80000 steps of training
+
+  <video src="https://github.com/Tsilkow/Rainbow-DQN/video/agent_314159_100000_episode-0.mp4" />  
+  Evaluation after 100000 steps of training
+</p>
