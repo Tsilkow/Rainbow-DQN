@@ -17,27 +17,27 @@ Following results were achieved by training on my personal computer without GPU 
   <br>
   Plot of evaluation score against simulation steps
   <br>
-
+  <br>
   <img src="https://raw.githubusercontent.com/Tsilkow/Rainbow-DQN/main/video/agent_314159_20000.gif" width=50% height=auto>
   <br>
   Evaluation after 20000 steps of training
   <br>
-
+  <br>
   <img src="https://raw.githubusercontent.com/Tsilkow/Rainbow-DQN/main/video/agent_314159_40000.gif" width=50% height=auto>
   <br>
   Evaluation after 40000 steps of training
   <br>
-
+  <br>
   <img src="https://raw.githubusercontent.com/Tsilkow/Rainbow-DQN/main/video/agent_314159_60000.gif" width=50% height=auto>
   <br>
   Evaluation after 60000 steps of training
   <br>
-
+  <br>
   <img src="https://raw.githubusercontent.com/Tsilkow/Rainbow-DQN/main/video/agent_314159_80000.gif" width=50% height=auto>
   <br>
   Evaluation after 80000 steps of training
   <br>
-
+  <br>
   <img src="https://raw.githubusercontent.com/Tsilkow/Rainbow-DQN/main/video/agent_314159_100000.gif" width=50% height=auto>
   <br>
   Evaluation after 100000 steps of training
