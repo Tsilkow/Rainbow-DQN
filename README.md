@@ -14,6 +14,9 @@ Notably, this is not a full Rainbow, as Distributional reinforcement learning fr
 Following results were achieved by training on my personal computer without GPU (but I'm hoping to get to train a more ambitious example on a GPU) for 100000 steps.
 <p align="center">
   <img src="https://raw.githubusercontent.com/Tsilkow/Rainbow-DQN/main/plots/agent_314159.png" width=50% height=auto>
+  <br>
+  Plot of evaluation score against simulation steps
+  <br>
 
   <img src="https://raw.githubusercontent.com/Tsilkow/Rainbow-DQN/main/video/agent_314159_20000.gif" width=50% height=auto>
   <br>
