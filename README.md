@@ -42,3 +42,17 @@ Following results were achieved by training on my personal computer without GPU 
   <br>
   Evaluation after 100000 steps of training
 </p>
+
+## How to run
+**Pytorch does not yet support Python 3.11, so it's recommended to use Python 3.10**
+
+In order to achieve different training and evaluation results, it is important to change seed in Hyperparameters class. Feel free to change other values, to experiment!
+
+Before using the script, make sure to install the dependencies:
+```bash
+pip install -r requirements.txt
+```
+  
+To train new agent, simply run `python main.py`, if you want to record some evaluations, add flag `-r`. Note: recording is mutually exclusive with presenting the evaulation on screen due to the way gymnasium is set up.  
+
+To load a specific agent, include flag `-l` and specify file with network data from 'agents/'.
