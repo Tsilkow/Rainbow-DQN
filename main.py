@@ -22,7 +22,7 @@ class Hyperparameters:
     """Simple class for holding the hyperparameters"""
     def __init__(self):
         self.gym_id = 'LunarLander-v2'
-        self.seed = 314159
+        self.seed = 314158
         self.buffer_capacity = 20000 # Experience buffer capacity
         self.init_steps = 10000 # Number of initial steps without learning
         self.batch_size = 128
@@ -100,10 +100,21 @@ def train_agent(args, agent, record: bool=False):
             episode_reward = 0
     if record:
         np.save(f'plots/agent_{args.seed}.npy', results)
-        plt.plot(results)
+        fig = plot_scores(results)
         plt.savefig(f'plots/agent_{args.seed}.png')
 
     return results
+
+
+def plot_scores(data: np.array):
+    """Helper function for plotting evaluation scores over simulation steps"""
+    fig, ax = plt.subplots(figsize=(10, 5))
+    ax.plot(data)
+    ax.yaxis.grid(True)
+    ax.set_ylabel('Score')
+    ax.set_xlabel('Steps')
+    ax.set_xticklabels([str(x*100) for x in [0, 0, 20, 40, 60, 80, 100]])
+    return fig
 
 
 def play_using_agent(args, agent, record: bool=False, recording_name: str=None):
