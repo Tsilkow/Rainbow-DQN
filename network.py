@@ -3,7 +3,6 @@
 import numpy as np
 import torch
 import torch.nn as nn
-import torch.optim as optim
 
 
 def weight_init(model):
@@ -18,18 +17,18 @@ class QNetwork(nn.Module):
     def __init__(self, args):
         super(QNetwork, self).__init__()
         self.layers = nn.Sequential(
-           nn.Linear(args.state_dim, args.hidden_dim), nn.ReLU(),
+            nn.Linear(args.state_dim, args.hidden_dim), nn.ReLU(),
             nn.Linear(args.hidden_dim, args.hidden_dim), nn.ReLU(),
             nn.Linear(args.hidden_dim, args.action_dim))
         self.apply(weight_init)
-        
+
     def forward(self, x):
         return self.layers(x)
-    
+
 
 class NoisyLinear(nn.Module):
     """
-    Variant of linear module that adds parametrized gaussian noise to 
+    Variant of linear module that adds parametrized gaussian noise to
     linearly calculated results
     """
     def __init__(self, input_size, output_size, std):
@@ -41,7 +40,7 @@ class NoisyLinear(nn.Module):
         self.weight_var = nn.Parameter(
             torch.full((output_size, input_size), std/np.sqrt(input_size)))
         self.bias_mean = nn.Parameter(
-            2*amp * torch.rand((output_size)) 
+            2*amp * torch.rand((output_size))
             + torch.full((output_size, ), -amp))
         self.bias_var = nn.Parameter(
             torch.full([output_size], std/np.sqrt(input_size)))
@@ -62,11 +61,11 @@ class NoisyLinear(nn.Module):
     def forward(self, x):
         weights, biases = self.get_noise()
         return x @ weights.T + biases
-    
+
 
 class DuelingQNetwork(nn.Module):
     """
-    Variant of Q-Network that calculates Q-value by adding together value of 
+    Variant of Q-Network that calculates Q-value by adding together value of
     given state and advantage given action has over other actions.
     """
     def __init__(self, args, std):
@@ -76,19 +75,19 @@ class DuelingQNetwork(nn.Module):
             nn.Linear(args.hidden_dim, args.hidden_dim, std), nn.ReLU(),)
         self.advantage_head = nn.Linear(args.hidden_dim, args.action_dim, std)
         self.value_head = nn.Linear(args.hidden_dim, 1, std)
-    
+
     def forward(self, x):
         headless_output = self.layers(x)
         state_value = self.value_head(headless_output)
         advantages = self.advantage_head(headless_output)
         average_advantage = (advantages.sum(dim=1)/x.shape[1]).unsqueeze(dim=1)
         return state_value + advantages - average_advantage
-    
+
 
 class RainbowQNetwork(nn.Module):
     """
     Variant of Q-Network based on Dueling Q-Network using Noisy Nets. Q-value is
-    calculated by adding value of given state to advantage given action has over 
+    calculated by adding value of given state to advantage given action has over
     other actions.
     """
     def __init__(self, args, std):
@@ -98,7 +97,7 @@ class RainbowQNetwork(nn.Module):
             NoisyLinear(args.hidden_dim, args.hidden_dim, std), nn.ReLU(),)
         self.advantage_head = NoisyLinear(args.hidden_dim, args.action_dim, std)
         self.value_head = NoisyLinear(args.hidden_dim, 1, std)
-    
+
     def forward(self, x):
         headless_output = self.layers(x)
         state_value = self.value_head(headless_output)

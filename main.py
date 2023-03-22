@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
 
-import os
-import math
-import random
 import time
 import argparse
 import warnings
@@ -12,10 +9,8 @@ import gymnasium.utils.play as play
 import numpy as np
 import matplotlib.pyplot as plt
 import torch
-import torch.nn as nn
-import torch.optim as optim
 
-from dqn import *
+from dqn import RainbowDQN
 
 
 class Hyperparameters:
@@ -23,15 +18,15 @@ class Hyperparameters:
     def __init__(self):
         self.gym_id = 'LunarLander-v2'
         self.seed = 314158
-        self.buffer_capacity = 20000 # Experience buffer capacity
-        self.init_steps = 10000 # Number of initial steps without learning
+        self.buffer_capacity = 20000  # Experience buffer capacity
+        self.init_steps = 10000  # Number of initial steps without learning
         self.batch_size = 128
-        self.hidden_dim = 128 # Hidden dimension of Q-value network
+        self.hidden_dim = 128  # Hidden dimension of Q-value network
         self.learning_rate = 1e-3
         self.discount = 0.99
         self.truncation_punishment = 0
         self.total_timesteps = 100000
-        self.target_update_freq = 50 # Update frequency of Q-value target network
+        self.target_update_freq = 50  # Update frequency of Q-value target network
         self.evaluate_freq = 1000
         self.snapshot_freq = 20000
         self.evaluate_samples = 5
@@ -42,7 +37,8 @@ class Hyperparameters:
         self.state_dim = env.observation_space.shape[0]
         self.action_dim = env.action_space.n
         self.device = torch.device('cuda' if torch.cuda.is_available() and self.cuda else 'cpu')
-        
+
+
 hyperparamters = Hyperparameters()
 
 
@@ -58,7 +54,7 @@ def set_all_seeds(env, seed):
     np.random.seed(seed)
 
 
-def train_agent(args, agent, record: bool=False):
+def train_agent(args, agent, record: bool = False):
     """
     Function for training an agent.
 
@@ -88,16 +84,15 @@ def train_agent(args, agent, record: bool=False):
                 eval_reward = agent.evaluate(args.evaluate_samples)
                 results[step//args.evaluate_freq] = eval_reward
                 print(f'\rStep: {step} '
-                        f'Evaluation reward: {eval_reward:.2f} '
-                        f'Samples per second: {int((step-args.init_steps)/(time.time()-start_time))}          ',
-                        end='')
+                      f'Evaluation reward: {eval_reward:.2f} '
+                      f'Samples per second: {int((step-args.init_steps)/(time.time()-start_time))}          ',
+                      end='')
             if record and (step+1) % args.snapshot_freq == 0:
                 filename = f'agent_{args.seed}_{step+1}'
                 agent.save_qnet('agents/'+filename)
                 play_using_agent(args, agent, True, filename)
         if terminal or truncated:
             state, _ = env.reset()
-            episode_reward = 0
     if record:
         np.save(f'plots/agent_{args.seed}.npy', results)
         fig = plot_scores(results)
@@ -164,7 +159,7 @@ def play_using_human(args):
 
     def callback(obs_t, obs_tp1, action, rew, terminated, truncated, info):
         return [rew,]
-    
+
     plotter = play.PlayPlot(callback, 150, ["reward"])
     play.play(env, fps=10, keys_to_action=key_mappings, callback=plotter.callback)
 

@@ -6,8 +6,8 @@ import torch.nn as nn
 import torch.optim as optim
 import gymnasium as gym
 
-from buffer import *
-from network import *
+from buffer import ExperienceBuffer, RainbowBuffer
+from network import QNetwork, RainbowQNetwork
 
 
 class DQN:
@@ -16,7 +16,7 @@ class DQN:
     """
     def __init__(self, args):
         super(DQN, self).__init__()
-        self.args = args 
+        self.args = args
         self.buffer = ExperienceBuffer(self.args)
         self.epsilon = 1
         self.truncation_punishment = args.truncation_punishment
@@ -24,7 +24,7 @@ class DQN:
         self.q_target = QNetwork(self.args).to(self.args.device)
         self.q_target.load_state_dict(self.q_net.state_dict())
         self.optimizer = optim.Adam(self.q_net.parameters(), lr=self.args.learning_rate, eps=1e-5)
-                
+
     def get_action(self, state, exploration=True):
         """Method for deciding on next action"""
         with torch.no_grad():
@@ -44,20 +44,20 @@ class DQN:
         with torch.no_grad():
             q_ns = torch.max(self.q_target(next_states), dim=1)[0].unsqueeze(1)
         q_targets = rewards + (1-terminals) * self.args.discount * q_ns
-        
+
         self.optimizer.zero_grad()
         q_values = self.q_net(states).gather(1, actions)
         loss = nn.functional.smooth_l1_loss(q_values, q_targets)
         loss.backward()
         self.optimizer.step()
-    
+
     def update_target(self):
         """
-        Method for replacing Q-value target network with the newest Q-value 
+        Method for replacing Q-value target network with the newest Q-value
         network.
         """
         self.q_target.load_state_dict(self.q_net.state_dict())
-        
+
     def evaluate(self, samples):
         with torch.no_grad():
             env_test = gym.make(self.args.gym_id)
@@ -75,7 +75,7 @@ class DQN:
                         eval_reward += episode_reward/samples
                         break
         return eval_reward
-    
+
     def reset(self):
         self.buffer = ExperienceBuffer(self.args)
         self.epsilon = 1
@@ -88,12 +88,12 @@ class DQN:
         torch.save(self.q_net.state_dict(), filename)
 
     def load_qnet(self, filename):
-        self.q_net.load_state_dict(torch.load(filename))  
+        self.q_net.load_state_dict(torch.load(filename))
 
 
 class RainbowDQN(DQN):
     """
-    Rainbow Deep Q-value Network that combines N-step and Prioritized Buffer 
+    Rainbow Deep Q-value Network that combines N-step and Prioritized Buffer
     as well as Dueling and Noisy Q-value Network.
     """
     def __init__(self, args, nstep=3, std=0.2, alpha=0.2, beta=0.2):
@@ -101,13 +101,13 @@ class RainbowDQN(DQN):
         self.buffer = RainbowBuffer(args, nstep, alpha, beta)
         self.alpha = alpha
         self.beta = beta
-        self.nstep = nstep 
+        self.nstep = nstep
         self.q_net = RainbowQNetwork(args, std).to(args.device)
         self.q_target = RainbowQNetwork(args, std).to(args.device)
         self.q_target.load_state_dict(self.q_net.state_dict())
         self.optimizer = optim.Adam(self.q_net.parameters(), lr=args.learning_rate, eps=1e-5)
         self.std = std
-        
+
     def update(self):
         states, actions, rewards, next_states, terminals, idx, weights = self.buffer.sample()
         with torch.no_grad():
@@ -123,7 +123,7 @@ class RainbowDQN(DQN):
         self.optimizer.step()
         priorities = td_errors.detach().squeeze().cpu().tolist()
         self.buffer.update_priorities(idx, priorities)
-        
+
     def anneal(self, step):
         if step < self.args.anneal_steps and step > self.args.init_steps:
             self.buffer.alpha = ((1 - self.alpha)/self.args.anneal_steps)*step + self.alpha
@@ -133,9 +133,9 @@ class RainbowDQN(DQN):
 
     def get_action(self, state, exploration=True):
         return torch.argmax(self.q_net(state)).item()
-    
+
     def reset(self):
-        self.buffer = RainbowBuffer(self.args, self.nstep, self.alpha, self.beta) 
+        self.buffer = RainbowBuffer(self.args, self.nstep, self.alpha, self.beta)
         self.q_net = RainbowQNetwork(self.args, self.std).to(self.args.device)
         self.q_target = RainbowQNetwork(self.args, self.std).to(self.args.device)
         self.q_target.load_state_dict(self.q_net.state_dict())
